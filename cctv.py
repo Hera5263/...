@@ -16,15 +16,12 @@ def stations_in_radius(df, lat, lon, radius_km):
     )
     return tmp.loc[tmp["Distance_km"] <= radius_km].sort_values("Distance_km")
 
-# --------- 統計雨量 ----------
+# --------- 統計雨量（只保留最大值）----------
 def summarize_rain(subset, cols=("Now","Past1hr","Past3hr","Past24hr")):
-    if subset.empty:
-        return pd.Series(dtype=float)
     stats = {}
     for c in cols:
         vals = pd.to_numeric(subset[c], errors="coerce").dropna()
         stats[f"{c}_max"] = round(vals.max(), 2) if not vals.empty else None
-        stats[f"{c}_mean"] = round(vals.mean(), 2) if not vals.empty else None
     return pd.Series(stats)
 
 # --------- 距離加權平均 ----------
@@ -85,5 +82,6 @@ for _, row in cctv_df.iterrows():
 
 print(f"✅ 總計 {len(cctv_list)} 筆 CCTV 完成整合")
 
-with open("taichung_cctv_with_rain_summary.json", "w", encoding="utf-8") as f:
+with open("taichung_cctv_event_rain_summary.json", "w", encoding="utf-8") as f:
     json.dump(cctv_list, f, ensure_ascii=False, indent=2)
+
